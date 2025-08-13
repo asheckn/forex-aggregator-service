@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@SecurityRequirement(name = "authorization")
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 public class AuthenticationController {
@@ -27,11 +26,6 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request
     ){
         return ResponseEntity.ok(service.authenticate(request));
-    }
-
-    @GetMapping("/self")
-    public ResponseEntity<?> getUserByToken(@AuthenticationPrincipal User user){
-        return ResponseEntity.ok(user);
     }
 
 }
