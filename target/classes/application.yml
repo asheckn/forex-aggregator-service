@@ -1,0 +1,44 @@
+server:
+  error:
+    include-message: always
+jwt:
+  secret: oyVEQth8OzBiVJRv1y3P+MY4ksqpYeEImi16C0An3/oMecLIl0LWmHRRDrHznal+pKcbYIhl+fiPyIQfHopToAO9tDNl7qMRD2YtENKTYjWp5yh7vznG3wsLWBoeqaZFGbNBeo2QnvoUbj9eyy1Jhk5P6XjhgXwjIl2nnydvQvo8g/KwerG9eyKOynRXCf0RMVFGlTaCPqeBHXTz4kioWa9OxQ3vK2/pDA/tKnmg7W+yfvWX32hY12+TUn7DIpCWB7RB+x/Lo5pMGnTFqrubrwfaZ+kTQ6NYDhZ6+Z0YuxdYgqu+vN+drSLgL0hbF3n3xsVENiEQZ0hfTCdQEO6knx5QEL/QWK3NQ/iREUYyJQg=
+spring:
+  application:
+    name: forex-aggregator-service
+  datasource:
+    password: root
+    url: jdbc:postgresql://localhost:5432/wiremit
+    username: postgres
+  servlet:
+    multipart:
+      max-file-size: 11122780
+      max-request-size: 11122780
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  security:
+    user:
+      name: user
+      password: password
+      roles: ADMIN
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger
+
+
+web:
+  cors:
+    allowed-origins: "*"
+    allowed-methods: GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD
+    max-age: 3600
+    allowed-headers: "*"
+    exposed-headers: "*"
