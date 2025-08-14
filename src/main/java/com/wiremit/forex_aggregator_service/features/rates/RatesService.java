@@ -13,7 +13,7 @@ public interface RatesService {
 
     ResponseEntity<GenericResponse> getAllRates();
 
-    ResponseEntity<GenericResponse> getRatesByDateCurrency(String baseCurrency, LocalDate date);
+    ResponseEntity<GenericResponse> getRatesByDateCurrency(String baseCurrency, LocalDate startDate, LocalDate endDate);
 
-    ResponseEntity<GenericResponse> getRatesByDate(LocalDate date);
+    ResponseEntity<GenericResponse> getRatesByDate(LocalDate startDate, LocalDate endDate);
 }

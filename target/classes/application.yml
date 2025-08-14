@@ -23,6 +23,20 @@ spring:
         format_sql: true
     show-sql: true
 
+api:
+  freeCurrencyKey: fca_live_aiUklUhUz1WtGifm7UGhXKJJKUWgNc6jcTnkMieu
+  exchangeRatesKey: 779f941147d5bfade7529ced
+rates:
+  validity:
+    hours: 24  # How long rates are considered valid
+  update:
+    schedule: "0 */1000 * * * *"  # Every 10 minutes (cron expression)
+  api:
+    delay:
+      frankfurter: 100  # ms delay between calls
+      freecurrency: 200
+      exchangerates: 150
+
 springdoc:
   api-docs:
     enabled: true

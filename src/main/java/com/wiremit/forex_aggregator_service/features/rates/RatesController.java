@@ -19,24 +19,25 @@ public class RatesController {
 
     private final RatesService ratesService;
 
-    @GetMapping("/rates/{currency}")
+    @GetMapping("/{currency}")
     public ResponseEntity<GenericResponse> getRate(@PathVariable String currency) {
         return ratesService.getRates(currency);
     }
 
-    @GetMapping("/rates")
+    @GetMapping("")
     public ResponseEntity<GenericResponse> getRates() {
+//        Assumes base currency is USD as world reserve currency
         return ratesService.getAllRates();
     }
 
-    @GetMapping("/rates/historical")
-    public ResponseEntity<GenericResponse> getRates(@RequestParam LocalDate date) {
-        return ratesService.getRatesByDate(date);
+    @GetMapping("/historical")
+    public ResponseEntity<GenericResponse> getRates(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate) {
+        return ratesService.getRatesByDate(startDate, endDate);
     }
 
-    @GetMapping("/rates/{currency}/historical")
-    public ResponseEntity<GenericResponse> getRates(@RequestParam LocalDate date, @PathVariable String currency) {
-        return ratesService.getRatesByDateCurrency(currency, date);
+    @GetMapping("/{currency}/historical")
+    public ResponseEntity<GenericResponse> getRates(@RequestParam LocalDate startDate, @RequestParam LocalDate endDate , @PathVariable String currency) {
+        return ratesService.getRatesByDateCurrency(currency, startDate, endDate);
     }
 
 }
