@@ -1,7 +1,5 @@
 networks:
   wiremit:
-    external: true
-
 
 services:
   aggregator-service:
@@ -20,7 +18,7 @@ services:
       SPRINGDOC_API_DOCS_ENABLED: "true"
       SPRINGDOC_SWAGGER_UI_PATH: "/swagger"
     ports:
-      - "8081:8081"
+      - "8080:8080"
     networks:
       - wiremit
     restart: always
