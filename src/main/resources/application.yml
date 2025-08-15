@@ -8,7 +8,7 @@ spring:
     name: forex-aggregator-service
   datasource:
     password: root
-    url: jdbc:postgresql://localhost:5432/wiremit
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/wiremit }
     username: postgres
   servlet:
     multipart:
@@ -16,7 +16,7 @@ spring:
       max-request-size: 11122780
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update }
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -39,7 +39,7 @@ rates:
 
 springdoc:
   api-docs:
-    enabled: true
+    enabled: ${SPRINGDOC_API_DOCS_ENABLED:true }
   swagger-ui:
     path: /swagger
 

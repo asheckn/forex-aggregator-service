@@ -1,0 +1,46 @@
+networks:
+  wiremit:
+    external: true
+
+
+services:
+  aggregator-service:
+    image: aggregator-service:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aggregator-service
+    depends_on:
+      - postgres
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/wiremit
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_ERROR_INCLUDE_MESSAGE: always
+      JWT_SECRET: "oyVEQth8OzBiVJRv1y3P+MY4ksqpYeEImi16C0An3/oMecLIk0LWmHRRDrHznal+pKcbYIhl+fiPyIQfyopToAO9tDNl7qMRD2YtENKTYjWp5yh7vznG3wsLWBoeqaZFGbNBeo2QnvoUbj9eyy1Jhk5P6XjhgXwjIl2nnydvQvo8g/KwerG9eyKOynRXCf0RMVFGlTaCPqeBHXTz4kioWa9OxQ3vK2/pDA/tKnmg7W+yfvWX32hY12+TUn7DIpCWB7RB+x/Lo5pMGnTFqrubrwfaZ+kTQ6NYDhZ6+Z0YuxdYgqu+vN+drSLgL0hbF3n3xsVENiEQZ0hfTCdQEO6knx5QEL/QWK3NQ/iREUYyJQg="
+      SPRINGDOC_API_DOCS_ENABLED: "true"
+      SPRINGDOC_SWAGGER_UI_PATH: "/swagger"
+    ports:
+      - "8081:8081"
+    networks:
+      - wiremit
+    restart: always
+
+  postgres:
+    image: postgres:15
+    container_name: wiremit-postgres
+    environment:
+      POSTGRES_DB: wiremit
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - wiremit
+
+
+
+volumes:
+  postgres_data:
