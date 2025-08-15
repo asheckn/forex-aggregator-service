@@ -187,9 +187,9 @@ public class RatesServiceImpl implements RatesService {
             }
         }
 
-        // If still no rates, try cross-rate through common currencies (USD, EUR)
+        // If still no rates, try cross-rate through common currencies (USD, GBP)
         if (rates.isEmpty()) {
-            for (String intermediateBase : Arrays.asList("USD", "EUR")) {
+            for (String intermediateBase : Arrays.asList("USD", "GBP")) {
                 if (allSourceRates.containsKey(intermediateBase)) {
                     Map<String, List<Double>> intermediateRates = allSourceRates.get(intermediateBase);
                     if (intermediateRates.containsKey(base) && intermediateRates.containsKey(target)) {
