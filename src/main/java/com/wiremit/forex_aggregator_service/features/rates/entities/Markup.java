@@ -5,6 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "markups")
 @Data
@@ -18,4 +23,8 @@ public class Markup {
 
     @Column(nullable = false)
     private Double percentage; // e.g., 10.0 means 10%
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 }

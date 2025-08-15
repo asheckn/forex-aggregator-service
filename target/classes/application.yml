@@ -24,8 +24,8 @@ spring:
     show-sql: true
 
 api:
-  freeCurrencyKey: fca_live_aiUklUhUz1WtGifm7UGhXKJJKUWgNc6jcTnkMieu
-  exchangeRatesKey: 779f941147d5bfade7529ced
+  freeCurrencyKey: fca_live_aiUklUhUz1WtGifm7UGhXKJJKUWgNc6jcTnkMieu # use envrionment variable for production do not store API Keys in code
+  exchangeRatesKey: 779f941147d5bfade7529ced # use envrionment variable for production do not store API Keys in code
 rates:
   validity:
     hours: 24  # How long rates are considered valid

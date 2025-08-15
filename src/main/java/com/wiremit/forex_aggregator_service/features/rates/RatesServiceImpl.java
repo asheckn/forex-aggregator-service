@@ -8,8 +8,10 @@ import com.wiremit.forex_aggregator_service.features.rates.entities.Rate;
 import com.wiremit.forex_aggregator_service.features.rates.repositories.CurrencyRepository;
 import com.wiremit.forex_aggregator_service.features.rates.repositories.MarkupRepository;
 import com.wiremit.forex_aggregator_service.features.rates.repositories.RateRepository;
+import com.wiremit.forex_aggregator_service.utils.CurrencyPair;
 import com.wiremit.forex_aggregator_service.utils.ExternalRateClient;
 import com.wiremit.forex_aggregator_service.utils.GenericResponse;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,14 +63,12 @@ public class RatesServiceImpl implements RatesService {
     @Scheduled(fixedRate = 600_0000) // every 100 minutes
     public void updateRates() {
         List<Currency> currencies = currencyRepo.findAll();
-        double markup = markupRepo.findAll().stream().findFirst()
+         double markup = markupRepo.findAll().stream()
+                .sorted((a, b) -> b.getId().compareTo(a.getId()))
+                .findFirst() // Find most recent rate and use that
                 .map(Markup::getPercentage)
                 .orElse(10.0); // default to 10% if no markup is set This will need to be remved in production
 
-        // Get all unique currency codes
-        List<String> currencyCodes = currencies.stream()
-                .map(Currency::getCode)
-                .collect(Collectors.toList());
 
         // Check which currency pairs need updates
         List<CurrencyPair> pairsNeedingUpdate = getPairsNeedingUpdate(currencies);
@@ -138,48 +138,35 @@ public class RatesServiceImpl implements RatesService {
 
 
     private List<CurrencyPair> getPairsNeedingUpdate(List<Currency> currencies) {
-            List<CurrencyPair> pairsNeedingUpdate = new ArrayList<>();
-            LocalDateTime cutoffTime = LocalDateTime.now().minusHours(rateValidityHours);
+        List<CurrencyPair> pairsNeedingUpdate = new ArrayList<>();
+        LocalDateTime cutoffTime = LocalDateTime.now().minusHours(rateValidityHours);
 
-            for (Currency baseCurrency : currencies) {
+        for (Currency baseCurrency : currencies) {
             for (Currency targetCurrency : currencies) {
-            if (!baseCurrency.equals(targetCurrency)) {
-            // Check if we have a valid rate for this pair
-            Optional<Rate> existingRate = rateRepo.findTopByBaseCurrencyAndTargetCurrencyOrderByDateDesc(
-            baseCurrency, targetCurrency);
+                if (!baseCurrency.equals(targetCurrency)) {
+                    // Check if we have a valid rate for this pair
+                    Optional<Rate> existingRate = rateRepo.findTopByBaseCurrencyAndTargetCurrencyOrderByDateDesc(
+                            baseCurrency, targetCurrency);
 
-            boolean needsUpdate = existingRate.isEmpty() ||
-            existingRate.get().getDate().atStartOfDay().isBefore(cutoffTime);
+                    boolean needsUpdate = existingRate.isEmpty() ||
+                            existingRate.get().getDate().atStartOfDay().isBefore(cutoffTime);
 
-            if (needsUpdate) {
-            pairsNeedingUpdate.add(new CurrencyPair(baseCurrency.getCode(), targetCurrency.getCode()));
-            log.debug("Rate {}->{} needs update. Last update: {}",
-            baseCurrency.getCode(), targetCurrency.getCode(),
-            existingRate.map(rate -> rate.getDate().toString()).orElse("NEVER"));
-            } else {
-            log.debug("Rate {}->{} is still valid until {}",
-            baseCurrency.getCode(), targetCurrency.getCode(),
-            existingRate.get().getDate().atStartOfDay().plusHours(rateValidityHours));
-            }
-            }
-            }
-            }
-
-            return pairsNeedingUpdate;
+                    if (needsUpdate) {
+                        pairsNeedingUpdate.add(new CurrencyPair(baseCurrency.getCode(), targetCurrency.getCode()));
+                        log.debug("Rate {}->{} needs update. Last update: {}",
+                                baseCurrency.getCode(), targetCurrency.getCode(),
+                                existingRate.map(rate -> rate.getDate().toString()).orElse("NEVER"));
+                    } else {
+                        log.debug("Rate {}->{} is still valid until {}",
+                                baseCurrency.getCode(), targetCurrency.getCode(),
+                                existingRate.get().getDate().atStartOfDay().plusHours(rateValidityHours));
+                    }
+                }
             }
 
-    // Helper class for currency pairs
-    private static class CurrencyPair {
-        private final String baseCurrency;
-        private final String targetCurrency;
-
-        public CurrencyPair(String baseCurrency, String targetCurrency) {
-            this.baseCurrency = baseCurrency;
-            this.targetCurrency = targetCurrency;
         }
 
-        public String getBaseCurrency() { return baseCurrency; }
-        public String getTargetCurrency() { return targetCurrency; }
+        return pairsNeedingUpdate;
     }
 
     private List<Double> getRatesForPair(String base, String target, Map<String, Map<String, List<Double>>> allSourceRates) {
@@ -304,5 +291,46 @@ public class RatesServiceImpl implements RatesService {
         );
 
         return ResponseEntity.ok(new GenericResponse("Success", true, rateResponse));
+    }
+
+    @PostConstruct
+    public void initDefaultCurrency() {
+
+
+        // Check if USD currency exists, if not create it
+        if (currencyRepo.findByCode("USD").isEmpty()) {
+            Currency usd = new Currency();
+            usd.setCode("USD");
+            usd.setName("United States Dollar");
+            currencyRepo.save(usd);
+        }
+
+        // Check if ZAR currency exists, if not create it
+        if (currencyRepo.findByCode("ZAR").isEmpty()) {
+            Currency zar = new Currency();
+            zar.setCode("ZAR");
+            zar.setName("South African Rand");
+            currencyRepo.save(zar);
+        }
+
+        // Check if GBP currency exists, if not create it
+        if (currencyRepo.findByCode("GBP").isEmpty()) {
+            Currency gbp = new Currency();
+            gbp.setCode("GBP");
+            gbp.setName("British Pound Sterling");
+            currencyRepo.save(gbp);
+        }
+
+        // Setup Markup
+        if (markupRepo.findAll().isEmpty()) {
+            Markup defaultMarkup = new Markup();
+            defaultMarkup.setPercentage(10.0); // Default markup percentage
+            markupRepo.save(defaultMarkup);
+            log.info("Default markup of 10% created.");
+        } else {
+            log.info("Markup already exists, skipping creation.");
+        }
+
+
     }
 }
